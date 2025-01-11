@@ -1,0 +1,25 @@
+name: Daily Number Update
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Runs at 6:00 AM UTC every day
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  update-number:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    - name: Run update script
+      run: |
+        python update_number.py
+    - name: Commit and push if changed
+      run: |
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        git add -A
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update number: $(date +'%Y-%m-%d')" && git push)
